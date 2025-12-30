@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "start": "node src/server.js",
+  "dev": "nodemon src/server.js",
+  "migrate": "node src/db/runMigration.js",
+    "seed": "node src/db/runSeed.js"
+},
+
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  "bcryptjs": "^2.4.3",
+  "cors": "^2.8.5",
+  "dotenv": "^17.2.3",
+  "express": "^4.21.2",
+  "jsonwebtoken": "^9.0.3",
+  "pg": "^8.16.3",
+  "uuid": "8.3.2"
+},
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+
+}
