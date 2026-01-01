@@ -1,27 +1,69 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
 
-const authRoutes = require('./routes/authRoutes');
+dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-}));
+/**
+ * CORS CONFIGURATION (MANDATORY)
+ * In Docker: FRONTEND_URL=http://frontend:3000
+ * Local dev: FRONTEND_URL=http://localhost:3000
+ */
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
-// 🔴 THIS LINE IS REQUIRED
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    database: 'connected',
-  });
+/**
+ * Health Check (MANDATORY)
+ * Must return OK only after DB is ready
+ */
+const { checkDatabaseConnection } = require('./config/db');
+
+app.get('/api/health', async (req, res) => {
+  try {
+    await checkDatabaseConnection();
+    return res.status(200).json({
+      status: 'ok',
+      database: 'connected',
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: 'error',
+      database: 'disconnected',
+    });
+  }
 });
 
-// 🔴 ROUTES MUST COME AFTER express.json()
-app.use('/api/auth', authRoutes);
+/**
+ * Routes
+ */
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/tenants', require('./routes/tenant.routes'));
+app.use('/api/tenants', require('./routes/user.routes'));
+app.use('/api/users', require('./routes/user.routes'));
+
+app.use('/api/projects', require('./routes/project.routes'));
+app.use('/api/projects', require('./routes/task.routes'));
+app.use('/api/tasks', require('./routes/task.routes'));
+
+
+/**
+ * Global Error Handler (MANDATORY)
+ */
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || 500;
+  res.status(status).json({
+    success: false,
+    message: err.message || 'Internal server error',
+  });
+});
 
 module.exports = app;

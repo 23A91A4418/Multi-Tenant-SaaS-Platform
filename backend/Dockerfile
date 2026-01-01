@@ -7,8 +7,6 @@ RUN npm install
 
 COPY . .
 
-RUN chmod +x start.sh
-
 EXPOSE 5000
 
-CMD ["node", "src/server.js"]
+CMD ["sh", "-c", "npm run migrate && npm run seed && npm run start"]

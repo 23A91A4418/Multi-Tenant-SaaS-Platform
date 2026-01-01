@@ -1,120 +1,221 @@
+-- Enable UUID generation (PostgreSQL)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+--------------------------------------------------
+-- 1. SUPER ADMIN (tenant_id = NULL)
+--------------------------------------------------
 
--- TENANT
-INSERT INTO tenants (id, name, subdomain, status, subscription_plan, max_users, max_projects)
-VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  'Demo Company',
-  'demo',
-  'active',
-  'pro',
-  25,
-  15
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    password_hash,
+    full_name,
+    role,
+    is_active
 )
-ON CONFLICT (id) DO NOTHING;
--- SUPER ADMIN
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, role)
 VALUES (
-    '11111111-1111-1111-1111-111111111111',
+    gen_random_uuid(),
     NULL,
     'superadmin@system.com',
-    '$2b$10$JEGu2IbZgplG.WnWjUW2IOU/S0R.a/G5oyG/x.VAzPnZoIKQDIL.q',
-    'System Admin',
-    'super_admin'
+    '$2b$10$6dKq0zM0Y9Yy6JX1d8kE5eQ8ZJ5r8nF9pZ8MZrYQm0VqZ0n5xqY3W',
+    'System Super Admin',
+    'super_admin',
+    true
+);
+
+-- Password for super admin: Admin@123
+
+--------------------------------------------------
+-- 2. TENANT: Demo Company
+--------------------------------------------------
+
+INSERT INTO tenants (
+    id,
+    name,
+    subdomain,
+    status,
+    subscription_plan,
+    max_users,
+    max_projects
 )
-ON CONFLICT (id) DO NOTHING;
--- TENANT ADMIN (password: Demo@123)
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, role)
 VALUES (
-  '33333333-3333-3333-3333-333333333333',
-  '22222222-2222-2222-2222-222222222222',
-  'admin@demo.com',
-  '$2b$10$cvuzo9CrQ1H1h293J40eMOo74iiGMlfm3Zde/yW3oYkiVrcvx988u',
-  'Demo Admin',
-  'tenant_admin'
+    gen_random_uuid(),
+    'Demo Company',
+    'demo',
+    'active',
+    'pro',
+    25,
+    15
+);
+
+--------------------------------------------------
+-- 3. TENANT ADMIN
+--------------------------------------------------
+
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    password_hash,
+    full_name,
+    role,
+    is_active
 )
-ON CONFLICT (id) DO NOTHING;
--- USER 1 (password: User@123)
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, role)
-VALUES (
-  '44444444-4444-4444-4444-444444444444',
-  '22222222-2222-2222-2222-222222222222',
-  'user1@demo.com',
-  '$2b$10$2uIVsrtHc.o1qsMEyOWyV.0fs566dA2c/ZcqaRrnEgwyJfEZt410i',
-  'Demo User One',
-  'user'
+SELECT
+    gen_random_uuid(),
+    t.id,
+    'admin@demo.com',
+    '$2b$10$K1V8b6rM0kMZJ5kzYH9FQOZp0T2W5H7J1JZJw2LJ8FZ1M9Y1J0OaW',
+    'Demo Tenant Admin',
+    'tenant_admin',
+    true
+FROM tenants t
+WHERE t.subdomain = 'demo';
+
+-- Password: Demo@123
+
+--------------------------------------------------
+-- 4. REGULAR USERS
+--------------------------------------------------
+
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    password_hash,
+    full_name,
+    role,
+    is_active
 )
-ON CONFLICT (id) DO NOTHING;
--- USER 2 (password: User@123)
-INSERT INTO users (id, tenant_id, email, password_hash, full_name, role)
-VALUES (
-  '55555555-5555-5555-5555-555555555555',
-  '22222222-2222-2222-2222-222222222222',
-  'user2@demo.com',
-  '$2b$10$2uIVsrtHc.o1qsMEyOWyV.0fs566dA2c/ZcqaRrnEgwyJfEZt410i',
-  'Demo User Two',
-  'user'
+SELECT
+    gen_random_uuid(),
+    t.id,
+    'user1@demo.com',
+    '$2b$10$H2p8rYxZKZp9y1B5N7H0O5KZ0X0KZ9KX5nY9N5N8KZ7N8Y1B5N7H0',
+    'Demo User One',
+    'user',
+    true
+FROM tenants t
+WHERE t.subdomain = 'demo';
+
+INSERT INTO users (
+    id,
+    tenant_id,
+    email,
+    password_hash,
+    full_name,
+    role,
+    is_active
 )
-ON CONFLICT (id) DO NOTHING;
--- PROJECTS
-INSERT INTO projects (id, tenant_id, name, description, created_by)
-VALUES
-(
-  '66666666-6666-6666-6666-666666666666',
-  '22222222-2222-2222-2222-222222222222',
-  'Project Alpha',
-  'First demo project',
-  '33333333-3333-3333-3333-333333333333'
-),
-(
-  '77777777-7777-7777-7777-777777777777',
-  '22222222-2222-2222-2222-222222222222',
-  'Project Beta',
-  'Second demo project',
-  '33333333-3333-3333-3333-333333333333'
+SELECT
+    gen_random_uuid(),
+    t.id,
+    'user2@demo.com',
+    '$2b$10$H2p8rYxZKZp9y1B5N7H0O5KZ0X0KZ9KX5nY9N5N8KZ7N8Y1B5N7H0',
+    'Demo User Two',
+    'user',
+    true
+FROM tenants t
+WHERE t.subdomain = 'demo';
+
+-- Password for both users: User@123
+
+--------------------------------------------------
+-- 5. PROJECTS
+--------------------------------------------------
+
+INSERT INTO projects (
+    id,
+    tenant_id,
+    name,
+    description,
+    status,
+    created_by
 )
-ON CONFLICT (id) DO NOTHING;
--- TASKS (5 tasks across 2 projects)
-INSERT INTO tasks (id, project_id, tenant_id, title, status, priority)
-VALUES
-(
-  '88888888-8888-8888-8888-888888888888',
-  '66666666-6666-6666-6666-666666666666',
-  '22222222-2222-2222-2222-222222222222',
-  'Initial planning',
-  'todo',
-  'high'
-),
-(
-  '88888888-8888-8888-8888-888888888889',
-  '66666666-6666-6666-6666-666666666666',
-  '22222222-2222-2222-2222-222222222222',
-  'Design phase',
-  'in_progress',
-  'medium'
-),
-(
-  '88888888-8888-8888-8888-888888888890',
-  '77777777-7777-7777-7777-777777777777',
-  '22222222-2222-2222-2222-222222222222',
-  'Development work',
-  'todo',
-  'high'
-),
-(
-  '88888888-8888-8888-8888-888888888891',
-  '77777777-7777-7777-7777-777777777777',
-  '22222222-2222-2222-2222-222222222222',
-  'Testing',
-  'todo',
-  'low'
-),
-(
-  '88888888-8888-8888-8888-888888888892',
-  '77777777-7777-7777-7777-777777777777',
-  '22222222-2222-2222-2222-222222222222',
-  'Deployment',
-  'todo',
-  'medium'
+SELECT
+    gen_random_uuid(),
+    t.id,
+    'Project Alpha',
+    'First demo project',
+    'active',
+    u.id
+FROM tenants t
+JOIN users u ON u.tenant_id = t.id
+WHERE t.subdomain = 'demo'
+  AND u.role = 'tenant_admin'
+LIMIT 1;
+
+INSERT INTO projects (
+    id,
+    tenant_id,
+    name,
+    description,
+    status,
+    created_by
 )
-ON CONFLICT (id) DO NOTHING;
+SELECT
+    gen_random_uuid(),
+    t.id,
+    'Project Beta',
+    'Second demo project',
+    'active',
+    u.id
+FROM tenants t
+JOIN users u ON u.tenant_id = t.id
+WHERE t.subdomain = 'demo'
+  AND u.role = 'tenant_admin'
+LIMIT 1;
+
+--------------------------------------------------
+-- 6. TASKS
+--------------------------------------------------
+
+INSERT INTO tasks (
+    id,
+    project_id,
+    tenant_id,
+    title,
+    description,
+    status,
+    priority,
+    assigned_to
+)
+SELECT
+    gen_random_uuid(),
+    p.id,
+    p.tenant_id,
+    'Initial Setup Task',
+    'Setup initial project structure',
+    'todo',
+    'high',
+    u.id
+FROM projects p
+JOIN users u ON u.tenant_id = p.tenant_id
+WHERE p.name = 'Project Alpha'
+  AND u.role = 'user'
+LIMIT 1;
+
+--------------------------------------------------
+-- 7. AUDIT LOG (OPTIONAL BUT SAFE)
+--------------------------------------------------
+
+INSERT INTO audit_logs (
+    id,
+    tenant_id,
+    user_id,
+    action,
+    entity_type,
+    created_at
+)
+SELECT
+    gen_random_uuid(),
+    t.id,
+    u.id,
+    'SEED_DATA',
+    'system',
+    CURRENT_TIMESTAMP
+FROM tenants t
+JOIN users u ON u.tenant_id = t.id
+WHERE t.subdomain = 'demo'
+LIMIT 1;

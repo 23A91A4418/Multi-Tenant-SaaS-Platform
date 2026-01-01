@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "start": "node src/server.js",
-  "dev": "nodemon src/server.js",
-  "migrate": "node src/db/runMigration.js",
-    "seed": "node src/db/runSeed.js"
-},
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "migrate": "psql \"$DATABASE_URL\" -f migrations/001_create_tenants.sql && psql \"$DATABASE_URL\" -f migrations/002_create_users.sql && psql \"$DATABASE_URL\" -f migrations/003_create_projects.sql && psql \"$DATABASE_URL\" -f migrations/004_create_tasks.sql && psql \"$DATABASE_URL\" -f migrations/005_create_audit_logs.sql",
+    "seed": "psql \"$DATABASE_URL\" -f seeds/seed_data.sql"
+  },
 
   "keywords": [],
   "author": "",
