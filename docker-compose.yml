@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  database:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: saas_db
+      POSTGRES_USER: saas_user
+      POSTGRES_PASSWORD: saas_password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saas_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: backend_api
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: saas_db
+      DB_USER: saas_user
+      DB_PASSWORD: saas_password
+      DATABASE_URL: postgres://saas_user:saas_password@database:5432/saas_db
+      JWT_SECRET: supersecretkey
+      JWT_EXPIRES_IN: 24h
+      FRONTEND_URL: http://frontend:3000
+      PORT: 5000
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_app
+    environment:
+      REACT_APP_API_URL: http://backend:5000/api
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
