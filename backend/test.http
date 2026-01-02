@@ -49,9 +49,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMzMzM
 Content-Type: application/json
 
 {
-  "email": "user9@demo.com",
-  "password": "User@123",
-  "fullName": "Demo User Nine",
+  "email": "testuser@demo.com",
+  "password": "Test@123",
+  "fullName": "Test User",
   "role": "user"
 }
 ###listTenantUsers APi9
