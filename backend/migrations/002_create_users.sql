@@ -1,3 +1,7 @@
+-- DOWN
+DROP TABLE IF EXISTS users;
+DROP TYPE IF EXISTS user_role;
+
 -- UP
 CREATE TYPE user_role AS ENUM ('super_admin', 'tenant_admin', 'user');
 
@@ -14,6 +18,4 @@ CREATE TABLE users (
     UNIQUE (tenant_id, email)
 );
 
--- DOWN
-DROP TABLE IF EXISTS users;
-DROP TYPE IF EXISTS user_role;
+

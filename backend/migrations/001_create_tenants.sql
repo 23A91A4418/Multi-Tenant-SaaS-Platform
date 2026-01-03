@@ -1,4 +1,9 @@
 -- UP
+-- DOWN
+DROP TABLE IF EXISTS tenants;
+DROP TYPE IF EXISTS tenant_status;
+DROP TYPE IF EXISTS subscription_plan;
+
 CREATE TYPE tenant_status AS ENUM ('active', 'suspended', 'trial');
 CREATE TYPE subscription_plan AS ENUM ('free', 'pro', 'enterprise');
 
@@ -14,7 +19,4 @@ CREATE TABLE tenants (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- DOWN
-DROP TABLE IF EXISTS tenants;
-DROP TYPE IF EXISTS tenant_status;
-DROP TYPE IF EXISTS subscription_plan;
+

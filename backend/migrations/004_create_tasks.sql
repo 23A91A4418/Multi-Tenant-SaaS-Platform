@@ -1,3 +1,8 @@
+-- DOWN
+DROP TABLE IF EXISTS tasks;
+DROP TYPE IF EXISTS task_status;
+DROP TYPE IF EXISTS task_priority;
+
 -- UP
 CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'completed');
 CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high');
@@ -18,7 +23,4 @@ CREATE TABLE tasks (
 
 CREATE INDEX idx_tasks_tenant_project ON tasks(tenant_id, project_id);
 
--- DOWN
-DROP TABLE IF EXISTS tasks;
-DROP TYPE IF EXISTS task_status;
-DROP TYPE IF EXISTS task_priority;
+

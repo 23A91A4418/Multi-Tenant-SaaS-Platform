@@ -1,3 +1,5 @@
+-- DOWN
+DROP TABLE IF EXISTS audit_logs;
 -- UP
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -10,5 +12,4 @@ CREATE TABLE audit_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- DOWN
-DROP TABLE IF EXISTS audit_logs;
+

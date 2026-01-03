@@ -1,3 +1,7 @@
+-- DOWN
+DROP TABLE IF EXISTS projects;
+DROP TYPE IF EXISTS project_status;
+
 -- UP
 CREATE TYPE project_status AS ENUM ('active', 'archived', 'completed');
 
@@ -14,6 +18,4 @@ CREATE TABLE projects (
 
 CREATE INDEX idx_projects_tenant_id ON projects(tenant_id);
 
--- DOWN
-DROP TABLE IF EXISTS projects;
-DROP TYPE IF EXISTS project_status;
+
