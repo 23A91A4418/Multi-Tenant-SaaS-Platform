@@ -19,7 +19,7 @@ const registerTenant = async (req, res, next) => {
   if (!tenantName || !subdomain || !adminEmail || !adminPassword || !adminFullName) {
     return res.status(400).json({
       success: false,
-      message: 'All fields are required',
+      message: 'All fields are required: tenantName, subdomain, adminEmail, adminPassword, adminFullName',
     });
   }
 
@@ -93,6 +93,14 @@ const registerTenant = async (req, res, next) => {
     });
   } catch (err) {
     await client.query('ROLLBACK');
+    console.error('Error in registerTenant:', err);
+    // Forward specific DB errors if possible, or generic 500
+    if (err.code === '23505') { // Unique violation
+        return res.status(409).json({
+            success: false,
+            message: 'Duplicate entry: ' + err.detail,
+        });
+    }
     next(err);
   } finally {
     client.release();

@@ -44,6 +44,22 @@
     "frontend_url": "http://localhost:5173",
     "backend_health_check": "http://localhost:5000/api/health"
   },
+  "test_credentials": {
+    "super_admin": {
+      "email": "superadmin@system.com",
+      "password": "Admin@123"
+    },
+    "tenant_admin": {
+      "email": "admin@demo.com",
+      "password": "Demo@123",
+      "tenant_subdomain": "demo"
+    },
+    "user": {
+      "email": "user1@demo.com",
+      "password": "User@123",
+      "tenant_subdomain": "demo"
+    }
+  },
   "status": "Completed",
   "notes": "The project is fully implemented with backend, frontend, Docker configuration, and documentation. All APIs were tested and validated against the requirements."
 }

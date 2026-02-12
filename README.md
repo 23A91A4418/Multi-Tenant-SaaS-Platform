@@ -5,6 +5,14 @@ This project demonstrates a scalable SaaS architecture with tenant-level data is
 
 ---
 
+## Documentation
+- [API Documentation](docs/API_DOCS.md)
+
+## Demo Video
+[Watch the Demo Video](https://example.com/demo-video-placeholder)
+
+---
+
 ## Overview
 
 The platform supports multiple organizations (tenants) using a shared database model with strict tenant isolation.  

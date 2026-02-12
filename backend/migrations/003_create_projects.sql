@@ -11,6 +11,10 @@ CREATE TABLE projects (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     status project_status DEFAULT 'active',
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    priority VARCHAR(50) DEFAULT 'medium',
+    budget DECIMAL(10, 2) DEFAULT 0.00,
     created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
