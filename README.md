@@ -9,7 +9,7 @@ This project demonstrates a scalable SaaS architecture with tenant-level data is
 - [API Documentation](docs/API_DOCS.md)
 
 ## Demo Video
-[Watch the Demo Video](https://example.com/demo-video-placeholder)
+[Watch the Demo Video](https://youtu.be/2CS3WCvQo40)
 
 ---
 
