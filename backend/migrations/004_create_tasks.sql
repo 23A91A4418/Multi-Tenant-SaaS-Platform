@@ -1,9 +1,7 @@
--- DOWN
-DROP TABLE IF EXISTS tasks;
-DROP TYPE IF EXISTS task_status;
-DROP TYPE IF EXISTS task_priority;
-
 -- UP
+DROP TABLE IF EXISTS tasks CASCADE;
+DROP TYPE IF EXISTS task_status CASCADE;
+DROP TYPE IF EXISTS task_priority CASCADE;
 CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'completed');
 CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high');
 

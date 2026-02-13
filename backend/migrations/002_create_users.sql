@@ -1,8 +1,8 @@
--- DOWN
-DROP TABLE IF EXISTS users;
-DROP TYPE IF EXISTS user_role;
-
 -- UP
+-- DOWN
+DROP TABLE IF EXISTS users CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
+
 CREATE TYPE user_role AS ENUM ('super_admin', 'tenant_admin', 'user');
 
 CREATE TABLE users (

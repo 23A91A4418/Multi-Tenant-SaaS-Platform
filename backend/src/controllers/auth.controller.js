@@ -23,9 +23,10 @@ const registerTenant = async (req, res, next) => {
     });
   }
 
-  const client = await pool.connect();
+  let client;
 
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     // Check subdomain uniqueness
@@ -35,6 +36,7 @@ const registerTenant = async (req, res, next) => {
     );
 
     if (subdomainCheck.rows.length > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({
         success: false,
         message: 'Subdomain already exists',
@@ -61,6 +63,7 @@ const registerTenant = async (req, res, next) => {
     );
 
     if (emailCheck.rows.length > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({
         success: false,
         message: 'Email already exists',
@@ -92,18 +95,18 @@ const registerTenant = async (req, res, next) => {
       },
     });
   } catch (err) {
-    await client.query('ROLLBACK');
+    if (client) await client.query('ROLLBACK');
     console.error('Error in registerTenant:', err);
     // Forward specific DB errors if possible, or generic 500
     if (err.code === '23505') { // Unique violation
-        return res.status(409).json({
-            success: false,
-            message: 'Duplicate entry: ' + err.detail,
-        });
+      return res.status(409).json({
+        success: false,
+        message: 'Duplicate entry: ' + err.detail,
+      });
     }
     next(err);
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 
@@ -238,13 +241,13 @@ const getCurrentUser = async (req, res, next) => {
         isActive: u.is_active,
         tenant: u.tenant_id
           ? {
-              id: u.tenant_id,
-              name: u.name,
-              subdomain: u.subdomain,
-              subscriptionPlan: u.subscription_plan,
-              maxUsers: u.max_users,
-              maxProjects: u.max_projects,
-            }
+            id: u.tenant_id,
+            name: u.name,
+            subdomain: u.subdomain,
+            subscriptionPlan: u.subscription_plan,
+            maxUsers: u.max_users,
+            maxProjects: u.max_projects,
+          }
           : null,
       },
     });

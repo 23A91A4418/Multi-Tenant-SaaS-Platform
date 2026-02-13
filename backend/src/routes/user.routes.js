@@ -12,23 +12,13 @@ const {
 } = require('../controllers/user.controller');
 
 /**
- * API 8: Add user to tenant
- * POST /api/tenants/:tenantId/users
- */
-router.post(
-  '/:tenantId/users',
-  authMiddleware,
-  roleMiddleware(['tenant_admin']),
-  addUserToTenant
-);
-
-/**
- * API 9: Get users by tenant
- * GET /api/tenants/:tenantId/users
+ * API 9: Get all users (Super Admin only)
+ * GET /api/users
  */
 router.get(
-  '/:tenantId/users',
+  '/',
   authMiddleware,
+  roleMiddleware(['super_admin']),
   getUsersByTenant
 );
 

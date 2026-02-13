@@ -48,20 +48,20 @@ const createProject = async (req, res, next) => {
     }
 
     const result = await pool.query(
-  `
+      `
   INSERT INTO projects
   (id, tenant_id, name, description, created_by)
   VALUES ($1, $2, $3, $4, $5)
   RETURNING id, name, description, status
   `,
-  [
-    randomUUID(),
-    tenantId,
-    name,
-    description || null,
-    req.user.userId,
-  ]
-);
+      [
+        randomUUID(),
+        tenantId,
+        name,
+        description || null,
+        req.user.userId,
+      ]
+    );
 
 
     await logAudit({
@@ -91,21 +91,14 @@ const getProjects = async (req, res, next) => {
   try {
     const tenantId = req.user.tenantId;
 
-    if (!tenantId) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-      });
-    }
-
     const result = await pool.query(
       `
       SELECT id, name, description, status, created_at
       FROM projects
-      WHERE tenant_id = $1
+      ${tenantId ? 'WHERE tenant_id = $1' : ''}
       ORDER BY created_at DESC
       `,
-      [tenantId]
+      tenantId ? [tenantId] : []
     );
 
     return res.status(200).json({

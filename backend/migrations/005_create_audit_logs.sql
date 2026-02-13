@@ -1,6 +1,5 @@
--- DOWN
-DROP TABLE IF EXISTS audit_logs;
 -- UP
+DROP TABLE IF EXISTS audit_logs CASCADE;
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,

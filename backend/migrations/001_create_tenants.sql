@@ -1,6 +1,6 @@
 -- UP
 -- DOWN
-DROP TABLE IF EXISTS tenants;
+DROP TABLE IF EXISTS tenants CASCADE;
 DROP TYPE IF EXISTS tenant_status;
 DROP TYPE IF EXISTS subscription_plan;
 

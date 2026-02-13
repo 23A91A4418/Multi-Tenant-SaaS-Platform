@@ -44,51 +44,69 @@ const Register = () => {
                 <h2>Register Tenant</h2>
                 {error && <p style={styles.error}>{error}</p>}
 
-                <input
-                    type="text"
-                    name="tenantName"
-                    placeholder="Tenant Name"
-                    value={formData.tenantName}
-                    onChange={handleChange}
-                    required
-                    style={styles.input}
-                />
-                <input
-                    type="text"
-                    name="subdomain"
-                    placeholder="Subdomain"
-                    value={formData.subdomain}
-                    onChange={handleChange}
-                    required
-                    style={styles.input}
-                />
-                <input
-                    type="text"
-                    name="adminFullName"
-                    placeholder="Admin Full Name"
-                    value={formData.adminFullName}
-                    onChange={handleChange}
-                    required
-                    style={styles.input}
-                />
-                <input
-                    type="email"
-                    name="adminEmail"
-                    placeholder="Admin Email"
-                    value={formData.adminEmail}
-                    onChange={handleChange}
-                    required
-                    style={styles.input}
-                />
-                <input
-                    type="password"
-                    name="adminPassword"
-                    placeholder="Password"
-                    value={formData.adminPassword}
-                    onChange={handleChange}
-                    required
-                    style={styles.input}
-                />
+                <div style={styles.field}>
+                    <label style={styles.label}>Tenant Name</label>
+                    <input
+                        type="text"
+                        name="tenantName"
+                        placeholder="e.g. Acme Corp"
+                        value={formData.tenantName}
+                        onChange={handleChange}
+                        required
+                        style={styles.input}
+                    />
+                </div>
+                <div style={styles.field}>
+                    <label style={styles.label}>Subdomain</label>
+                    <input
+                        type="text"
+                        name="subdomain"
+                        placeholder="e.g. acme"
+                        value={formData.subdomain}
+                        onChange={handleChange}
+                        required
+                        style={styles.input}
+                    />
+                    <small style={styles.helpText}>This will be used for your unique portal URL.</small>
+                </div>
+                <hr style={styles.divider} />
+                <div style={styles.field}>
+                    <label style={styles.label}>Admin Full Name</label>
+                    <input
+                        type="text"
+                        name="adminFullName"
+                        placeholder="Your full name"
+                        value={formData.adminFullName}
+                        onChange={handleChange}
+                        required
+                        style={styles.input}
+                    />
+                </div>
+                <div style={styles.field}>
+                    <label style={styles.label}>Admin Email</label>
+                    <input
+                        type="email"
+                        name="adminEmail"
+                        placeholder="admin@example.com"
+                        value={formData.adminEmail}
+                        onChange={handleChange}
+                        required
+                        style={styles.input}
+                    />
+                </div>
+                <div style={styles.field}>
+                    <label style={styles.label}>Admin Password</label>
+                    <input
+                        type="password"
+                        name="adminPassword"
+                        placeholder="Min 8 characters"
+                        value={formData.adminPassword}
+                        onChange={handleChange}
+                        required
+                        minLength="8"
+                        style={styles.input}
+                    />
+                </div>
 
                 <button type="submit" disabled={loading} style={styles.button}>
                     {loading ? 'Registering...' : 'Register'}
@@ -120,11 +138,30 @@ const styles = {
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
     },
+    field: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+    },
+    label: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        color: '#333',
+    },
     input: {
         padding: '10px',
         fontSize: '14px',
         borderRadius: '4px',
         border: '1px solid #ccc',
+    },
+    helpText: {
+        fontSize: '11px',
+        color: '#666',
+    },
+    divider: {
+        border: 'none',
+        borderTop: '1px solid #eee',
+        margin: '10px 0',
     },
     button: {
         padding: '10px',
@@ -136,7 +173,6 @@ const styles = {
         fontSize: '16px',
     },
     error: {
-        color: 'red',
         fontSize: '14px',
         textAlign: 'center',
     },

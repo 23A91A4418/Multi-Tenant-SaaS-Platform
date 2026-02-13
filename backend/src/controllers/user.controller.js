@@ -103,27 +103,37 @@ const addUserToTenant = async (req, res, next) => {
  * GET /api/tenants/:tenantId/users
  */
 const getUsersByTenant = async (req, res, next) => {
-  const { tenantId } = req.params;
+  const { tenantId } = req.params; // tenantId can be undefined if route is /api/users
 
   try {
-    if (
-      req.user.role !== 'super_admin' &&
-      req.user.tenantId !== tenantId
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: 'Unauthorized tenant access',
-      });
+    // Authorization:
+    // If tenantId is provided, check if user is super_admin OR belongs to that tenant.
+    // If tenantId is NOT provided, only super_admin can view all users.
+    if (tenantId) {
+      if (req.user.role !== 'super_admin' && req.user.tenantId !== tenantId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Unauthorized tenant access',
+        });
+      }
+    } else {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'Unauthorized: Only Super Admin can view all users',
+        });
+      }
     }
 
     const result = await pool.query(
       `
-      SELECT id, email, full_name, role, is_active, created_at
-      FROM users
-      WHERE tenant_id = $1
-      ORDER BY created_at DESC
+      SELECT u.id, u.email, u.full_name, u.role, u.is_active, t.name as tenant_name
+      FROM users u
+      LEFT JOIN tenants t ON u.tenant_id = t.id
+      ${tenantId ? 'WHERE u.tenant_id = $1' : ''}
+      ORDER BY u.created_at DESC
       `,
-      [tenantId]
+      tenantId ? [tenantId] : []
     );
 
     return res.status(200).json({

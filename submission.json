@@ -41,7 +41,7 @@
   ],
   "setup_instructions": {
     "command": "docker-compose up --build",
-    "frontend_url": "http://localhost:5173",
+    "frontend_url": "http://localhost:3000",
     "backend_health_check": "http://localhost:5000/api/health"
   },
   "test_credentials": {
@@ -54,10 +54,20 @@
       "password": "Demo@123",
       "tenant_subdomain": "demo"
     },
-    "user": {
+    "tenant_admin_global": {
+      "email": "admin@global.com",
+      "password": "Demo@123",
+      "tenant_subdomain": "global"
+    },
+    "user_demo": {
       "email": "user1@demo.com",
       "password": "User@123",
       "tenant_subdomain": "demo"
+    },
+    "user_global": {
+      "email": "dev1@global.com",
+      "password": "User@123",
+      "tenant_subdomain": "global"
     }
   },
   "status": "Completed",

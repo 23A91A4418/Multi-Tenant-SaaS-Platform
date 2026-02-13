@@ -103,7 +103,7 @@ const getTasksByProject = async (req, res, next) => {
 
     const tenantId = projectResult.rows[0].tenant_id;
 
-    if (req.user.tenantId !== tenantId) {
+    if (req.user.role !== 'super_admin' && req.user.tenantId !== tenantId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized tenant access',

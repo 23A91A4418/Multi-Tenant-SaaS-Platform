@@ -1,5 +1,4 @@
--- Enable UUID generation (PostgreSQL)
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+TRUNCATE audit_logs, tasks, projects, users, tenants CASCADE;
 
 --------------------------------------------------
 -- 1. SUPER ADMIN (tenant_id = NULL)
@@ -27,7 +26,7 @@ VALUES (
 -- Password for super admin: Admin@123
 
 --------------------------------------------------
--- 2. TENANT: Demo Company
+-- 2. TENANTS
 --------------------------------------------------
 
 INSERT INTO tenants (
@@ -39,7 +38,8 @@ INSERT INTO tenants (
     max_users,
     max_projects
 )
-VALUES (
+VALUES 
+(
     gen_random_uuid(),
     'Demo Company',
     'demo',
@@ -47,338 +47,124 @@ VALUES (
     'pro',
     25,
     15
+),
+(
+    gen_random_uuid(),
+    'Global Tech',
+    'global',
+    'active',
+    'enterprise',
+    100,
+    50
 );
 
 --------------------------------------------------
--- 3. TENANT ADMIN
+-- 3. TENANT ADMINS
 --------------------------------------------------
 
-INSERT INTO users (
-    id,
-    tenant_id,
-    email,
-    password_hash,
-    full_name,
-    role,
-    is_active
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'admin@demo.com',
-    '$2a$10$XfSGtAf9YXQNjZYlm/iPheaMnJxpOAjX8kJrD4PsCndSHj/WEFvEO',
-    'Demo Tenant Admin',
-    'tenant_admin',
-    true
-FROM tenants t
-WHERE t.subdomain = 'demo';
+-- Demo Admin
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'admin@demo.com', '$2a$10$XfSGtAf9YXQNjZYlm/iPheaMnJxpOAjX8kJrD4PsCndSHj/WEFvEO', 'Demo Admin', 'tenant_admin', true
+FROM tenants WHERE subdomain = 'demo';
 
--- Password: Demo@123
+-- Global Admin
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'admin@global.com', '$2a$10$XfSGtAf9YXQNjZYlm/iPheaMnJxpOAjX8kJrD4PsCndSHj/WEFvEO', 'Global Tech Admin', 'tenant_admin', true
+FROM tenants WHERE subdomain = 'global';
 
 --------------------------------------------------
 -- 4. REGULAR USERS
 --------------------------------------------------
 
-INSERT INTO users (
-    id,
-    tenant_id,
-    email,
-    password_hash,
-    full_name,
-    role,
-    is_active
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'user1@demo.com',
-    '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW',
-    'Demo User One',
-    'user',
-    true
-FROM tenants t
-WHERE t.subdomain = 'demo';
+-- Demo Users
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'user1@demo.com', '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW', 'Alice Demo', 'user', true
+FROM tenants WHERE subdomain = 'demo';
 
-INSERT INTO users (
-    id,
-    tenant_id,
-    email,
-    password_hash,
-    full_name,
-    role,
-    is_active
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'user2@demo.com',
-    '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW',
-    'Demo User Two',
-    'user',
-    true
-FROM tenants t
-WHERE t.subdomain = 'demo';
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'user2@demo.com', '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW', 'Bob Demo', 'user', true
+FROM tenants WHERE subdomain = 'demo';
 
--- Password for both users: User@123
+-- Global Users
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'dev1@global.com', '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW', 'Global Dev One', 'user', true
+FROM tenants WHERE subdomain = 'global';
+
+INSERT INTO users (id, tenant_id, email, password_hash, full_name, role, is_active)
+SELECT gen_random_uuid(), id, 'dev2@global.com', '$2a$10$EYcu0SX6wsfyWpCsVcpKn.UNLXpxSee0O8T0/P2CST2vO9.lhevuW', 'Global Dev Two', 'user', true
+FROM tenants WHERE subdomain = 'global';
 
 --------------------------------------------------
 -- 5. PROJECTS
 --------------------------------------------------
 
-INSERT INTO projects (
-    id,
-    tenant_id,
-    name,
-    description,
-    status,
-    created_by
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'Project Alpha',
-    'First demo project',
-    'active',
-    u.id
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-  AND u.role = 'tenant_admin'
-LIMIT 1;
+-- Demo Projects
+INSERT INTO projects (id, tenant_id, name, description, status, created_by)
+SELECT gen_random_uuid(), t.id, 'Project Alpha', 'Main initiative for Q1', 'active', u.id
+FROM tenants t JOIN users u ON u.tenant_id = t.id WHERE t.subdomain = 'demo' AND u.role = 'tenant_admin';
 
-INSERT INTO projects (
-    id,
-    tenant_id,
-    name,
-    description,
-    status,
-    created_by
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'Project Beta',
-    'Second demo project',
-    'active',
-    u.id
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-  AND u.role = 'tenant_admin'
-LIMIT 1;
+INSERT INTO projects (id, tenant_id, name, description, status, created_by)
+SELECT gen_random_uuid(), t.id, 'Project Beta', 'Secondary support project', 'active', u.id
+FROM tenants t JOIN users u ON u.tenant_id = t.id WHERE t.subdomain = 'demo' AND u.role = 'tenant_admin';
 
-INSERT INTO projects (
-    id,
-    tenant_id,
-    name,
-    description,
-    status,
-    created_by
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'Marketing Campaign Q1',
-    'Q1 2026 Marketing Strategy and Execution',
-    'active',
-    u.id
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-  AND u.role = 'tenant_admin'
-LIMIT 1;
+-- Global Projects
+INSERT INTO projects (id, tenant_id, name, description, status, created_by)
+SELECT gen_random_uuid(), t.id, 'Cloud Infrastructure', 'Migrating to multi-region', 'active', u.id
+FROM tenants t JOIN users u ON u.tenant_id = t.id WHERE t.subdomain = 'global' AND u.role = 'tenant_admin';
 
-INSERT INTO projects (
-    id,
-    tenant_id,
-    name,
-    description,
-    status,
-    created_by
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'Website Redesign',
-    'Overhaul of corporate website',
-    'active',
-    u.id
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-  AND u.role = 'tenant_admin'
-LIMIT 1;
-
-INSERT INTO projects (
-    id,
-    tenant_id,
-    name,
-    description,
-    status,
-    created_by
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    'Mobile App Launch',
-    'Launch Android and iOS apps',
-    'active',
-    u.id
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-  AND u.role = 'tenant_admin'
-LIMIT 1;
+INSERT INTO projects (id, tenant_id, name, description, status, created_by)
+SELECT gen_random_uuid(), t.id, 'Data Warehouse', 'Snowflake implementation', 'active', u.id
+FROM tenants t JOIN users u ON u.tenant_id = t.id WHERE t.subdomain = 'global' AND u.role = 'tenant_admin';
 
 --------------------------------------------------
 -- 6. TASKS
 --------------------------------------------------
 
-INSERT INTO tasks (
-    id,
-    project_id,
-    tenant_id,
-    title,
-    description,
-    status,
-    priority,
-    assigned_to
-)
-SELECT
-    gen_random_uuid(),
-    p.id,
-    p.tenant_id,
-    'Initial Setup Task',
-    'Setup initial project structure',
-    'todo',
-    'high',
-    u.id
-FROM projects p
-JOIN users u ON u.tenant_id = p.tenant_id
-WHERE p.name = 'Project Alpha'
-  AND u.role = 'user'
-LIMIT 1;
+-- Demo Tasks
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Setup Repository', 'Create git repo and boilerplate', 'completed', 'high', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Project Alpha' AND u.email = 'user1@demo.com';
 
-INSERT INTO tasks (
-    id,
-    project_id,
-    tenant_id,
-    title,
-    description,
-    status,
-    priority,
-    assigned_to
-)
-SELECT
-    gen_random_uuid(),
-    p.id,
-    p.tenant_id,
-    'Draft Social Media Plan',
-    'Create content calendar for Q1',
-    'in_progress',
-    'high',
-    u.id
-FROM projects p
-JOIN users u ON u.tenant_id = p.tenant_id
-WHERE p.name = 'Marketing Campaign Q1'
-  AND u.email = 'user1@demo.com'
-LIMIT 1;
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Fix UI Bugs', 'Review login styling issues', 'in_progress', 'medium', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Project Alpha' AND u.email = 'user2@demo.com';
 
-INSERT INTO tasks (
-    id,
-    project_id,
-    tenant_id,
-    title,
-    description,
-    status,
-    priority,
-    assigned_to
-)
-SELECT
-    gen_random_uuid(),
-    p.id,
-    p.tenant_id,
-    'Design Home Page Mockups',
-    'Figma designs for new home page',
-    'todo',
-    'medium',
-    u.id
-FROM projects p
-JOIN users u ON u.tenant_id = p.tenant_id
-WHERE p.name = 'Website Redesign'
-  AND u.email = 'user2@demo.com'
-LIMIT 1;
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Database Backup', 'Setup automated daily backups', 'todo', 'low', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Project Beta' AND u.email = 'user1@demo.com';
 
-INSERT INTO tasks (
-    id,
-    project_id,
-    tenant_id,
-    title,
-    description,
-    status,
-    priority,
-    assigned_to
-)
-SELECT
-    gen_random_uuid(),
-    p.id,
-    p.tenant_id,
-    'App Store Submission',
-    'Prepare assets for Apple App Store',
-    'todo',
-    'high',
-    u.id
-FROM projects p
-JOIN users u ON u.tenant_id = p.tenant_id
-WHERE p.name = 'Mobile App Launch'
-  AND u.email = 'admin@demo.com'
-LIMIT 1;
+-- Global Tasks
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Provision AWS VPC', 'Setup networking and subnets', 'completed', 'high', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Cloud Infrastructure' AND u.email = 'dev1@global.com';
 
-INSERT INTO tasks (
-    id,
-    project_id,
-    tenant_id,
-    title,
-    description,
-    status,
-    priority,
-    assigned_to
-)
-SELECT
-    gen_random_uuid(),
-    p.id,
-    p.tenant_id,
-    'Backend API Integration',
-    'Integrate login APIs with mobile app',
-    'completed',
-    'high',
-    u.id
-FROM projects p
-JOIN users u ON u.tenant_id = p.tenant_id
-WHERE p.name = 'Mobile App Launch'
-  AND u.email = 'user1@demo.com'
-LIMIT 1;
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'ETL Job Setup', 'Configure Kafka producers', 'todo', 'high', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Data Warehouse' AND u.email = 'dev2@global.com';
+
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Security Hardening', 'Audit IAM roles and policies', 'in_progress', 'high', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Cloud Infrastructure' AND u.email = 'admin@global.com';
+
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Database Migration', 'Move data to Snowflake', 'todo', 'medium', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Data Warehouse' AND u.email = 'dev1@global.com';
+
+-- More Demo Tasks
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'Finalize Branding', 'Approve project logo and colors', 'completed', 'medium', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Project Alpha' AND u.email = 'admin@demo.com';
+
+INSERT INTO tasks (id, project_id, tenant_id, title, description, status, priority, assigned_to)
+SELECT gen_random_uuid(), p.id, p.tenant_id, 'User Feedback Loop', 'Collect initial user feedback', 'in_progress', 'low', u.id
+FROM projects p JOIN users u ON u.tenant_id = p.tenant_id WHERE p.name = 'Project Beta' AND u.email = 'user2@demo.com';
 
 --------------------------------------------------
--- 7. AUDIT LOG (OPTIONAL BUT SAFE)
+-- 7. AUDIT LOGS
 --------------------------------------------------
 
-INSERT INTO audit_logs (
-    id,
-    tenant_id,
-    user_id,
-    action,
-    entity_type,
-    created_at
-)
-SELECT
-    gen_random_uuid(),
-    t.id,
-    u.id,
-    'SEED_DATA',
-    'system',
-    CURRENT_TIMESTAMP
-FROM tenants t
-JOIN users u ON u.tenant_id = t.id
-WHERE t.subdomain = 'demo'
-LIMIT 1;
+INSERT INTO audit_logs (id, tenant_id, user_id, action, entity_type)
+SELECT gen_random_uuid(), id, NULL, 'SYSTEM_STARTUP', 'system' FROM tenants WHERE subdomain = 'demo';
+
+INSERT INTO audit_logs (id, tenant_id, user_id, action, entity_type)
+SELECT gen_random_uuid(), id, NULL, 'ENTERPRISE_SETUP', 'system' FROM tenants WHERE subdomain = 'global';

@@ -12,6 +12,11 @@ const {
   deleteProject,
 } = require('../controllers/project.controller');
 
+const {
+  createTask,
+  getTasksByProject,
+} = require('../controllers/task.controller');
+
 // API 12: Create project
 router.post('/', authMiddleware, createProject);
 
@@ -23,5 +28,9 @@ router.put('/:projectId', authMiddleware, updateProject);
 
 // API 15: Delete project
 router.delete('/:projectId', authMiddleware, deleteProject);
+
+// TASK SUB-ROUTES
+router.post('/:projectId/tasks', authMiddleware, createTask);
+router.get('/:projectId/tasks', authMiddleware, getTasksByProject);
 
 module.exports = router;

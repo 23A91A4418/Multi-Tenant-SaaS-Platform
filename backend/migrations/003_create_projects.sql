@@ -1,8 +1,6 @@
--- DOWN
-DROP TABLE IF EXISTS projects;
-DROP TYPE IF EXISTS project_status;
-
 -- UP
+DROP TABLE IF EXISTS projects CASCADE;
+DROP TYPE IF EXISTS project_status CASCADE;
 CREATE TYPE project_status AS ENUM ('active', 'archived', 'completed');
 
 CREATE TABLE projects (
